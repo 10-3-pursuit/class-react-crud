@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 
-import { getOneShow } from "../../api/fetch";
+const URL = import.meta.env.VITE_BASE_API_URL;
+
+import { getOneShow, destroyShow } from "../../api/fetch";
 
 import "./Show.css";
 
@@ -9,6 +11,7 @@ import ErrorMessage from "../errors/ErrorMessage";
 
 function Show() {
   const { id } = useParams();
+  const navigate = useNavigate();
 
   const [show, setShow] = useState({});
   const [loadingError, setLoadingError] = useState(false);
@@ -25,7 +28,16 @@ function Show() {
     description,
   } = show;
   // will handle on Thursday
-  function handleDelete() {}
+  function handleDelete() {
+    // const options = { method: "DELETE" };
+    // fetch(`${URL}/shows/${id}`, options)
+    destroyShow(id)
+      .then(() => navigate("/shows"))
+      .catch((error) => {
+        console.error(error);
+        setLoadingError(true);
+      });
+  }
 
   useEffect(() => {
     getOneShow(id)
@@ -71,7 +83,7 @@ function Show() {
               <p>{description}</p>
             </article>
             <aside>
-              <button className="delete" onClick={() => handleDelete(showId)}>
+              <button className="delete" onClick={handleDelete}>
                 Remove show
               </button>
               <Link to={`/shows/${id}/edit`}>
